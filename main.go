@@ -77,31 +77,31 @@ func (l *Lexer) NextToken() tokens.Token {
 
 	switch l.char {
 	case '[':
-		t = newToken(tokens.L_BRACKET, l.position, l.position+1, l.char)
+		t = newToken(tokens.L_BRACKET, l.line+1, l.position+1, l.char)
 	case ']':
-		t = newToken(tokens.R_BRACKET, l.position, l.position+1, l.char)
+		t = newToken(tokens.R_BRACKET, l.line+1, l.position+1, l.char)
 	case '{':
-		t = newToken(tokens.L_BRACE, l.position, l.position+1, l.char)
+		t = newToken(tokens.L_BRACE, l.line+1, l.position+1, l.char)
 	case '}':
-		t = newToken(tokens.R_BRACE, l.position, l.position+1, l.char)
+		t = newToken(tokens.R_BRACE, l.line+1, l.position+1, l.char)
 	case ':':
-		t = newToken(tokens.COLON, l.position, l.position+1, l.char)
+		t = newToken(tokens.COLON, l.line+1, l.position+1, l.char)
 	case ',':
-		t = newToken(tokens.COMMA, l.position, l.position+1, l.char)
+		t = newToken(tokens.COMMA, l.line+1, l.position+1, l.char)
 	case '"':
 		t.Literal = l.readString()
 		t.Type = tokens.STRING
-		t.Line = l.line
+		t.Line = l.line + 1
 		return t
 	case 0:
 		t.Literal = ""
 		t.Type = tokens.EOF
-		t.Line = l.line
+		t.Line = l.line + 1
 	default:
 		if isLetter(l.char) {
 			ident := l.readIdentifier()
 			t.Literal = ident
-			t.Line = l.line
+			t.Line = l.line + 1
 			t.Col = l.position
 			tokType, err := tokens.LookupIdentifier(ident)
 			if err != nil {
@@ -113,10 +113,10 @@ func (l *Lexer) NextToken() tokens.Token {
 		} else if isNumber(l.char) {
 			t.Literal = l.readNumber()
 			t.Type = tokens.NUMBER
-			t.Line = l.line
+			t.Line = l.line + 1
 			t.Col = l.position
 		} else {
-			t = newToken(tokens.ILLEGAL, l.line, 1, l.char)
+			t = newToken(tokens.ILLEGAL, l.line+1, 1, l.char)
 		}
 	}
 
