@@ -1,7 +1,7 @@
-[
-  { 
-    "id": 11,
-    "name": 33,
-    "active": null
-  }
-]
+{
+  "name": "json-lexer",
+  "version": 1.0,
+  "is_complete": true,
+  "files": ["lexer.go", "tokens.go", "main.go"],
+  "documentation": null
+}

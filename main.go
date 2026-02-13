@@ -19,6 +19,7 @@ type Lexer struct {
 func main() {
 	// Open json file and read the data
 	dataBytes, err := os.ReadFile("./data.json")
+	outputFile, err := os.OpenFile("./output.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +31,13 @@ func main() {
 
 	for {
 		tok := l.NextToken()
-		fmt.Printf("%+v \n", tok)
+		tokString := fmt.Sprintf("%+v \n", tok)
+		fmt.Print(tokString)
+		// Write result in output file
+		_, err := outputFile.WriteString(tokString)
+		if err != nil {
+			panic(err)
+		}
 		if tok.Type == tokens.EOF {
 			break
 		}
