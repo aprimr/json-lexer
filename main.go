@@ -13,6 +13,7 @@ type Lexer struct {
 	nextPosition int    // points to the next index (peek)
 	char         byte   // current character byte present at current position
 	line         int
+	lineStart    int
 }
 
 func main() {
@@ -56,6 +57,7 @@ func (l *Lexer) skipWhiteSpaces() {
 	for l.char == ' ' || l.char == '\n' || l.char == '\t' || l.char == '\r' {
 		if l.char == '\n' {
 			l.line++
+			l.lineStart = l.nextPosition
 		}
 		l.readChar()
 	}
@@ -77,32 +79,37 @@ func (l *Lexer) NextToken() tokens.Token {
 
 	switch l.char {
 	case '[':
-		t = newToken(tokens.L_BRACKET, l.line+1, l.position+1, l.char)
+		t = newToken(tokens.L_BRACKET, l.line+1, l.GetCol(), l.char)
 	case ']':
-		t = newToken(tokens.R_BRACKET, l.line+1, l.position+1, l.char)
+		t = newToken(tokens.R_BRACKET, l.line+1, l.GetCol(), l.char)
 	case '{':
-		t = newToken(tokens.L_BRACE, l.line+1, l.position+1, l.char)
+		t = newToken(tokens.L_BRACE, l.line+1, l.GetCol(), l.char)
 	case '}':
-		t = newToken(tokens.R_BRACE, l.line+1, l.position+1, l.char)
+		t = newToken(tokens.R_BRACE, l.line+1, l.GetCol(), l.char)
 	case ':':
-		t = newToken(tokens.COLON, l.line+1, l.position+1, l.char)
+		t = newToken(tokens.COLON, l.line+1, l.GetCol(), l.char)
 	case ',':
-		t = newToken(tokens.COMMA, l.line+1, l.position+1, l.char)
+		t = newToken(tokens.COMMA, l.line+1, l.GetCol(), l.char)
 	case '"':
+		col := l.GetCol()
 		t.Literal = l.readString()
 		t.Type = tokens.STRING
 		t.Line = l.line + 1
+		t.Col = col
 		return t
 	case 0:
+		col := l.GetCol()
 		t.Literal = ""
 		t.Type = tokens.EOF
 		t.Line = l.line + 1
+		t.Col = col
 	default:
 		if isLetter(l.char) {
+			col := l.GetCol()
 			ident := l.readIdentifier()
 			t.Literal = ident
 			t.Line = l.line + 1
-			t.Col = l.position
+			t.Col = col
 			tokType, err := tokens.LookupIdentifier(ident)
 			if err != nil {
 				t.Type = tokens.ILLEGAL
@@ -111,10 +118,12 @@ func (l *Lexer) NextToken() tokens.Token {
 			t.Type = tokType
 			return t
 		} else if isNumber(l.char) {
+			col := l.GetCol()
 			t.Literal = l.readNumber()
 			t.Type = tokens.NUMBER
 			t.Line = l.line + 1
-			t.Col = l.position
+			t.Col = col
+			return t
 		} else {
 			t = newToken(tokens.ILLEGAL, l.line+1, 1, l.char)
 		}
@@ -153,6 +162,11 @@ func (l *Lexer) readNumber() string {
 	}
 
 	return string(l.Input[position:l.position])
+}
+
+// calculate and return the column
+func (l *Lexer) GetCol() int {
+	return l.position - l.lineStart + 1
 }
 
 // Check if the data is number or not
