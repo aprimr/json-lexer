@@ -1,3 +1,3 @@
-module go-json-lexer
+module gojsonlexer
 
 go 1.25.0

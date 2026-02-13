@@ -3,15 +3,5 @@
     "id": 1,
     "name": "Project Spark",
     "active": true
-  },
-  {
-    "id": 2,
-    "name": "Lexer Engine",
-    "active": false
-  },
-  {
-    "id": 3,
-    "name": "Go Interpreter",
-    "active": true
   }
 ]
